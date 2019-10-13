@@ -4,17 +4,25 @@
  */
 const express = require("express");
 const router = express.Router();
-const AuthController = require("../controllers/auth");
+const AuthMiddleWare = require("../middleware/authMiddleware");
+const AuthController = require("../controllers/AuthController");
+const FriendController = require("../controllers/FriendController");
 
 /**
  * Init all APIs on your application
+ * @param {*} app from express
  */
-class APIs {
-  init(app) {
-    router.post("/login", AuthController.login);
+let initAPIs = (app) => {
+  router.post("/login", AuthController.login);
+  router.post("/refresh-token", AuthController.refreshToken);
 
-    return app.use("/", router);
-  }
+  // Sử dụng authMiddleware.isAuth trước những api cần xác thực
+  router.use(AuthMiddleWare.isAuth);
+  // List Protect APIs:
+  router.get("/friends", FriendController.friendLists);
+  // router.get("/example-protect-api", ExampleController.someAction);
+
+  return app.use("/", router);
 }
 
-module.exports = new APIs();
+module.exports = initAPIs;

@@ -4,13 +4,13 @@
  */
 const express = require("express");
 const app = express();
-const APIs = require("./routes/api");
+const initAPIs = require("./routes/api");
 
 // Cho phép các api của ứng dụng xử lý dữ liệu từ body của request
 app.use(express.json());
 
 // Khởi tạo các routes cho ứng dụng
-APIs.init(app);
+initAPIs(app);
 
 // chọn một port mà bạn muốn và sử dụng để chạy ứng dụng tại local
 let port = 8017;
