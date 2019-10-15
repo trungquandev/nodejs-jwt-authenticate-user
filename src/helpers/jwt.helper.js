@@ -1,5 +1,5 @@
 /**
- * Created by trungquandev.com's author on 12/10/2019.
+ * Created by trungquandev.com's author on 16/10/2019.
  * src/controllers/auth.js
  */
 const jwt = require("jsonwebtoken");
@@ -18,11 +18,11 @@ let generateToken = (user, secretSignature, tokenLife) => {
       name: user.name,
       email: user.email,
     }
+    // Thực hiện ký và tạo token
     jwt.sign(
       {data: userData},
       secretSignature,
       {
-        // Thuật toán này default là HS256, các bạn có thể không khai báo vào đây cũng được.
         algorithm: "HS256",
         expiresIn: tokenLife,
       },

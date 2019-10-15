@@ -1,12 +1,23 @@
 /**
- * Created by trungquandev.com's author on 12/10/2019.
+ * Created by trungquandev.com's author on 16/10/2019.
  * src/controllers/auth.js
  */
-const debug = console.log.bind(console);
 const jwtHelper = require("../helpers/jwt.helper");
+const debug = console.log.bind(console);
 
-// Biến cục bộ trên server này sẽ lưu trữ tạm danh sách token, trong dự án thực tế, hãy lưu vào Redis hoặc DB
+// Biến cục bộ trên server này sẽ lưu trữ tạm danh sách token
+// Trong dự án thực tế, nên lưu chỗ khác, có thể lưu vào Redis hoặc DB
 let tokenList = {};
+
+// Thời gian sống của token
+const accessTokenLife = process.env.TOKEN_LIFE || "1h";
+// Mã secretKey này phải được bảo mật tuyệt đối, các bạn có thể lưu vào biến môi trường hoặc file
+const accessTokenSecret = process.env.TOKEN_SECRET || "access-token-secret-example-trungquandev.com-green-cat-a@";
+
+// Thời gian sống của refreshToken
+const refreshTokenLife = process.env.REFRESH_TOKEN_LIFE || "3650d";
+// Mã secretKey này phải được bảo mật tuyệt đối, các bạn có thể lưu vào biến môi trường hoặc file
+const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET || "refresh-token-secret-example-trungquandev.com-green-cat-a@";
 
 /**
  * controller login
@@ -31,24 +42,17 @@ let login = async (req, res) => {
     };
 
     debug(`Thực hiện tạo mã Token, [thời gian sống 1 giờ.]`);
-    const tokenLife = process.env.TOKEN_LIFE || "1h";
-    // Mã secretKey này phải được bảo mật tuyệt đối, các bạn có thể lưu vào biến môi trường hoặc file
-    const tokenSecret = process.env.TOKEN_SECRET || "token-secret-example-trungquandev.com-green-cat-a@";
-    // Tạo token
-    const token = await jwtHelper.generateToken(userFakeData, tokenSecret, tokenLife);
+    const accessToken = await jwtHelper.generateToken(userFakeData, accessTokenSecret, accessTokenLife);
     
     debug(`Thực hiện tạo mã Refresh Token, [thời gian sống 10 năm] =))`);
-    const refreshTokenLife = process.env.REFRESH_TOKEN_LIFE || "3650d";
-    // Mã secretKey này phải được bảo mật tuyệt đối, các bạn có thể lưu vào biến môi trường hoặc file
-    const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET || "refresh-token-secret-example-trungquandev.com-green-cat-a@";
-    // Tạo refresh token
     const refreshToken = await jwtHelper.generateToken(userFakeData, refreshTokenSecret, refreshTokenLife);
 
-    // Lưu lại mã Refresh token, kèm thông tin của user để sau này sử dụng lại.
-    tokenList[refreshToken] = userFakeData;
+    // Lưu lại 2 mã access & Refresh token, với key chính là cái refreshToken để đảm bảo unique và không sợ hacker sửa đổi dữ liệu truyền lên.
+    // lưu ý trong dự án thực tế, nên lưu chỗ khác, có thể lưu vào Redis hoặc DB
+    tokenList[refreshToken] = {accessToken, refreshToken};
     
     debug(`Gửi Token và Refresh Token về cho client...`);
-    return res.status(200).json({token, refreshToken});
+    return res.status(200).json({accessToken, refreshToken});
   } catch (error) {
     return res.status(500).json(error);
   }
@@ -59,17 +63,31 @@ let login = async (req, res) => {
  * @param {*} req 
  * @param {*} res 
  */
-let refreshToken = (req, res) => {
+let refreshToken = async (req, res) => {
   // User gửi mã refresh token kèm theo trong body
   const refreshTokenFromClient = req.body.refreshToken;
-  // debug(tokenList);
+  // debug("tokenList: ", tokenList);
   
+  // Nếu như tồn tại refreshToken truyền lên và nó cũng nằm trong tokenList của chúng ta
   if (refreshTokenFromClient && (tokenList[refreshTokenFromClient])) {
     try {
-      // await jwtHelper.verifyToken();
-      debug("1");
+      // Verify kiểm tra tính hợp lệ của cái refreshToken và lấy dữ liệu giải mã decoded 
+      const decoded = await jwtHelper.verifyToken(refreshTokenFromClient, refreshTokenSecret);
+
+      // Thông tin user lúc này các bạn có thể lấy thông qua biến decoded.data
+      // có thể mở comment dòng debug bên dưới để xem là rõ nhé.
+      // debug("decoded: ", decoded);
+      const userFakeData = decoded.data;
+
+      debug(`Thực hiện tạo mã Token trong bước gọi refresh Token, [thời gian sống vẫn là 1 giờ.]`);
+      const accessToken = await jwtHelper.generateToken(userFakeData, accessTokenSecret, accessTokenLife);
+
+      // gửi token mới về cho người dùng
+      return res.status(200).json({accessToken});
     } catch (error) {
+      // Lưu ý trong dự án thực tế hãy bỏ dòng debug bên dưới, mình để đây để debug lỗi cho các bạn xem thôi
       debug(error);
+
       res.status(403).json({
         message: 'Invalid refresh token.',
       });

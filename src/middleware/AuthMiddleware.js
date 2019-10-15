@@ -1,9 +1,12 @@
 /**
- * Created by trungquandev.com's author on 12/10/2019.
+ * Created by trungquandev.com's author on 16/10/2019.
  * src/controllers/auth.js
  */
 const jwtHelper = require("../helpers/jwt.helper");
 const debug = console.log.bind(console);
+
+// Mã secretKey này phải được bảo mật tuyệt đối, các bạn có thể lưu vào biến môi trường hoặc file
+const accessTokenSecret = process.env.TOKEN_SECRET || "access-token-secret-example-trungquandev.com-green-cat-a@";
 
 /**
  * Middleware: Authorization user by Token
@@ -12,8 +15,6 @@ const debug = console.log.bind(console);
  * @param {*} next 
  */
 let isAuth = async (req, res, next) => {
-  // Mã secretKey này phải được bảo mật tuyệt đối, các bạn có thể lưu vào biến môi trường hoặc file
-  const tokenSecret = process.env.TOKEN_SECRET || "token-secret-example-trungquandev.com-green-cat-a@";
   // Lấy token được gửi lên từ phía client, thông thường tốt nhất là các bạn nên truyền token vào header
   const tokenFromClient = req.body.token || req.query.token || req.headers["x-access-token"];
 
@@ -21,7 +22,7 @@ let isAuth = async (req, res, next) => {
     // Nếu tồn tại token
     try {
       // Thực hiện giải mã token xem có hợp lệ hay không?
-      const decoded = await jwtHelper.verifyToken(tokenFromClient, tokenSecret);
+      const decoded = await jwtHelper.verifyToken(tokenFromClient, accessTokenSecret);
 
       // Nếu token hợp lệ, lưu thông tin giải mã được vào đối tượng req, dùng cho các xử lý ở phía sau.
       req.jwtDecoded = decoded;

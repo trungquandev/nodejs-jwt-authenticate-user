@@ -1,5 +1,5 @@
 /**
- * Created by trungquandev.com's author on 12/10/2019.
+ * Created by trungquandev.com's author on 16/10/2019.
  * src/server.js
  */
 const express = require("express");
