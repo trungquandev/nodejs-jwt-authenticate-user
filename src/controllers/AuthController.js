@@ -10,9 +10,9 @@ const debug = console.log.bind(console);
 let tokenList = {};
 
 // Thời gian sống của token
-const accessTokenLife = process.env.TOKEN_LIFE || "1h";
+const accessTokenLife = process.env.ACCESS_TOKEN_LIFE || "1h";
 // Mã secretKey này phải được bảo mật tuyệt đối, các bạn có thể lưu vào biến môi trường hoặc file
-const accessTokenSecret = process.env.TOKEN_SECRET || "access-token-secret-example-trungquandev.com-green-cat-a@";
+const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET || "access-token-secret-example-trungquandev.com-green-cat-a@";
 
 // Thời gian sống của refreshToken
 const refreshTokenLife = process.env.REFRESH_TOKEN_LIFE || "3650d";

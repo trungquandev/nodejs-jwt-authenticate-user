@@ -6,7 +6,7 @@ const jwtHelper = require("../helpers/jwt.helper");
 const debug = console.log.bind(console);
 
 // Mã secretKey này phải được bảo mật tuyệt đối, các bạn có thể lưu vào biến môi trường hoặc file
-const accessTokenSecret = process.env.TOKEN_SECRET || "access-token-secret-example-trungquandev.com-green-cat-a@";
+const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET || "access-token-secret-example-trungquandev.com-green-cat-a@";
 
 /**
  * Middleware: Authorization user by Token
