@@ -1,6 +1,6 @@
 # NodeJS authenticate user with JWT (JSON Web Tokens) ["accessToken" & "refreshToken"]
 
-## Hướng dẫn ở repo này đã cũ vì mình làm từ 2019. Các bạn xem phần cập nhật mới nhất ở đây nhé: https://youtu.be/XwQ-wxfCeJs
+## Lưu ý quan trọng: Hướng dẫn ở repo này đã cũ vì mình làm từ 2019. Các bạn xem phần mình update mới nhất ở đây nhé: https://youtu.be/XwQ-wxfCeJs
 
 ## Requirements
 
